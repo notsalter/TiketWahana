@@ -6,20 +6,21 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 /**
- * Main Application Entry Point
+ * Kelas Utama Aplikasi Tiket Wahana
+ * Berfungsi sebagai titik masuk program dan menginisialisasi tampilan login
  * @author salter
  */
 public class MainApp {
     
-    public static void main(String[] args) {        // Set system look and feel
+    public static void main(String[] args) {        // Mengatur tampilan sesuai sistem operasi
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | 
                  IllegalAccessException | UnsupportedLookAndFeelException e) {
-            System.err.println("Could not set system look and feel: " + e.getMessage());
+            System.err.println("Tidak dapat mengatur tampilan sistem: " + e.getMessage());
         }
         
-        // Start the application on EDT
+        // Jalankan aplikasi di thread EDT
         SwingUtilities.invokeLater(() -> {
             new LoginForm().setVisible(true);
         });

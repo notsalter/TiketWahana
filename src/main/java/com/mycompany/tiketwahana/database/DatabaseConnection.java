@@ -3,6 +3,10 @@ package com.mycompany.tiketwahana.database;
 import java.sql.*;
 import javax.swing.JOptionPane;
 
+/**
+ * Kelas untuk mengelola koneksi database MySQL
+ * Menggunakan pola Singleton untuk memastikan hanya ada satu koneksi aktif
+ */
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/ticket_wahana_db";
     private static final String USERNAME = "root";
@@ -15,15 +19,13 @@ public class DatabaseConnection {
             if (connection == null || connection.isClosed()) {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-                System.out.println("Database connected successfully!");
+                System.out.println("Koneksi database berhasil!");
             }
             return connection;
-        } catch (ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(null, "MySQL Driver not found: " + e.getMessage());
-            System.err.println("MySQL Driver not found: " + e.getMessage());
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Database connection failed: " + e.getMessage());
-            System.err.println("Database connection failed: " + e.getMessage());
+        } catch (ClassNotFoundException e) {            JOptionPane.showMessageDialog(null, "Driver MySQL tidak ditemukan: " + e.getMessage());
+            System.err.println("Driver MySQL tidak ditemukan: " + e.getMessage());
+        } catch (SQLException e) {            JOptionPane.showMessageDialog(null, "Koneksi database gagal: " + e.getMessage());
+            System.err.println("Koneksi database gagal: " + e.getMessage());
         }
         return null;
     }
@@ -32,10 +34,10 @@ public class DatabaseConnection {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();
-                System.out.println("Database connection closed.");
+                System.out.println("Koneksi database ditutup.");
             }
         } catch (SQLException e) {
-            System.err.println("Error closing connection: " + e.getMessage());
+            System.err.println("Kesalahan saat menutup koneksi: " + e.getMessage());
         }
     }
 }

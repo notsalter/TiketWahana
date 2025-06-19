@@ -25,16 +25,14 @@ public class WahanaManagementForm extends JDialog {
     private void initComponents() {
         setSize(800, 600);
         setLayout(new BorderLayout());
-        
-        // Top panel for form inputs
+          // Panel atas untuk input form
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBorder(BorderFactory.createTitledBorder("Data Wahana"));
         formPanel.setBackground(Color.WHITE);
         
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
-        
-        // Form fields
+          // Field-field form
         gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
         formPanel.add(new JLabel("Kode Wahana:"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -70,8 +68,7 @@ public class WahanaManagementForm extends JDialog {
         gbc.gridx = 3; gbc.fill = GridBagConstraints.HORIZONTAL;
         cmbStatus = new JComboBox<>(new String[]{"AKTIF", "MAINTENANCE", "TUTUP"});
         formPanel.add(cmbStatus, gbc);
-        
-        // Button panel
+          // Panel tombol
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.setBackground(Color.WHITE);
           btnAdd = new JButton("Tambah");
@@ -107,8 +104,7 @@ public class WahanaManagementForm extends JDialog {
         
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 4; gbc.fill = GridBagConstraints.HORIZONTAL;
         formPanel.add(buttonPanel, gbc);
-        
-        // Table for displaying wahana data
+          // Tabel untuk menampilkan data wahana
         String[] columns = {"ID", "Kode", "Nama", "Harga", "Kapasitas", "Durasi", "Status"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
@@ -157,7 +153,7 @@ public class WahanaManagementForm extends JDialog {
                 stmt.close();
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Kesalahan saat memuat data: " + e.getMessage());
         }
     }
     
@@ -196,7 +192,7 @@ public class WahanaManagementForm extends JDialog {
                     loadWahanaData();
                 }
             } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Error adding wahana: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Kesalahan saat menambah wahana: " + e.getMessage());
             }
         }
     }
@@ -226,7 +222,7 @@ public class WahanaManagementForm extends JDialog {
                     loadWahanaData();
                 }
             } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Error updating wahana: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Kesalahan saat memperbarui wahana: " + e.getMessage());
             }
         } else {
             JOptionPane.showMessageDialog(this, "Pilih wahana yang akan diupdate!");
@@ -254,7 +250,7 @@ public class WahanaManagementForm extends JDialog {
                         loadWahanaData();
                     }
                 } catch (SQLException e) {
-                    JOptionPane.showMessageDialog(this, "Error deleting wahana: " + e.getMessage());
+                    JOptionPane.showMessageDialog(this, "Kesalahan saat menghapus wahana: " + e.getMessage());
                 }
             }
         } else {

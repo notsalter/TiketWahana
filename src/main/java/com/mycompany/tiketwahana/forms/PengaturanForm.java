@@ -38,21 +38,13 @@ public class PengaturanForm extends JDialog {
         headerPanel.add(titleLabel, BorderLayout.CENTER);
 
         // Main content with tabs
-        JTabbedPane tabbedPane = new JTabbedPane();
-
-        // Database Settings Tab
+        JTabbedPane tabbedPane = new JTabbedPane();        // Tab Pengaturan Database
         JPanel dbPanel = createDatabaseSettingsPanel();
-        tabbedPane.addTab("Database", dbPanel);
-
-        // Password Settings Tab
+        tabbedPane.addTab("Database", dbPanel);        // Tab Pengaturan Password
         JPanel passwordPanel = createPasswordSettingsPanel();
-        tabbedPane.addTab("Ganti Password", passwordPanel);
-
-        // System Logs Tab
+        tabbedPane.addTab("Ganti Password", passwordPanel);        // Tab Log Sistem
         JPanel logsPanel = createSystemLogsPanel();
-        tabbedPane.addTab("Log Sistem", logsPanel);
-
-        // Database Tools Tab
+        tabbedPane.addTab("Log Sistem", logsPanel);        // Tab Tools Database
         JPanel toolsPanel = createDatabaseToolsPanel();
         tabbedPane.addTab("Tools Database", toolsPanel);
 
@@ -98,23 +90,17 @@ public class PengaturanForm extends JDialog {
         formPanel.add(new JLabel("Database Host:"), gbc);
         gbc.gridx = 1; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.HORIZONTAL;
         fieldDbHost = new JTextField("localhost", 20);
-        formPanel.add(fieldDbHost, gbc);
-
-        // Database Port
+        formPanel.add(fieldDbHost, gbc);        // Port Database
         gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 1; gbc.fill = GridBagConstraints.NONE;
         formPanel.add(new JLabel("Database Port:"), gbc);
         gbc.gridx = 1; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.HORIZONTAL;
         fieldDbPort = new JTextField("3306", 20);
-        formPanel.add(fieldDbPort, gbc);
-
-        // Database Name
+        formPanel.add(fieldDbPort, gbc);        // Nama Database
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 1; gbc.fill = GridBagConstraints.NONE;
         formPanel.add(new JLabel("Database Name:"), gbc);
         gbc.gridx = 1; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.HORIZONTAL;
         fieldDbName = new JTextField("ticket_wahana_db", 20);
-        formPanel.add(fieldDbName, gbc);
-
-        // Test Connection Button
+        formPanel.add(fieldDbName, gbc);        // Tombol Test Koneksi
         gbc.gridx = 1; gbc.gridy = 3; gbc.gridwidth = 1; gbc.fill = GridBagConstraints.NONE;        JButton btnTest = new JButton("Test Koneksi");
         btnTest.setBackground(new Color(52, 152, 219));
         btnTest.setForeground(Color.BLACK);
@@ -150,30 +136,22 @@ public class PengaturanForm extends JDialog {
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Current Password
+        gbc.anchor = GridBagConstraints.WEST;        // Password Saat Ini
         gbc.gridx = 0; gbc.gridy = 0;
         formPanel.add(new JLabel("Password Saat Ini:"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
         fieldCurrentPassword = new JPasswordField(20);
-        formPanel.add(fieldCurrentPassword, gbc);
-
-        // New Password
+        formPanel.add(fieldCurrentPassword, gbc);        // Password Baru
         gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE;
         formPanel.add(new JLabel("Password Baru:"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
         fieldNewPassword = new JPasswordField(20);
-        formPanel.add(fieldNewPassword, gbc);
-
-        // Confirm Password
+        formPanel.add(fieldNewPassword, gbc);        // Konfirmasi Password
         gbc.gridx = 0; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE;
         formPanel.add(new JLabel("Konfirmasi Password:"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
         fieldConfirmPassword = new JPasswordField(20);
-        formPanel.add(fieldConfirmPassword, gbc);
-
-        // Change Password Button
+        formPanel.add(fieldConfirmPassword, gbc);        // Tombol Ubah Password
         gbc.gridx = 1; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE;        JButton btnChange = new JButton("Ubah Password");
         btnChange.setBackground(new Color(155, 89, 182));
         btnChange.setForeground(Color.BLACK);
@@ -359,28 +337,25 @@ public class PengaturanForm extends JDialog {
             JOptionPane.showMessageDialog(this, "Password minimal 6 karakter!", 
                 "Error", JOptionPane.ERROR_MESSAGE);
             return;
-        }
-
-        // Here you would implement actual password change logic
+        }        // Implementasikan logika ubah password yang sebenarnya di sini
         JOptionPane.showMessageDialog(this, "Password berhasil diubah!", 
             "Sukses", JOptionPane.INFORMATION_MESSAGE);
 
-        // Clear fields
+        // Bersihkan field
         fieldCurrentPassword.setText("");
         fieldNewPassword.setText("");
         fieldConfirmPassword.setText("");
     }
 
     private void loadSystemLogs() {
-        if (logArea != null) {
-            logArea.setText("System Logs:\n\n" +
+        if (logArea != null) {            logArea.setText("Log Sistem:\n\n" +
                           "2024-12-11 10:30:25 - User admin login\n" +
                           "2024-12-11 10:35:12 - Wahana W001 diupdate\n" +
                           "2024-12-11 10:40:45 - Transaksi TRX001 berhasil\n" +
                           "2024-12-11 10:45:20 - Laporan digenerate\n" +
                           "2024-12-11 10:50:33 - Database backup otomatis\n" +
                           "2024-12-11 11:00:15 - User admin logout\n\n" +
-                          "Note: Log akan diambil dari tabel system_logs di database");
+                          "Catatan: Log akan diambil dari tabel system_logs di database");
         }
     }
 
@@ -388,7 +363,7 @@ public class PengaturanForm extends JDialog {
         int confirm = JOptionPane.showConfirmDialog(this, 
             "Hapus semua log sistem?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            logArea.setText("System logs cleared.\n");
+            logArea.setText("Log sistem telah dibersihkan.\n");
         }
     }
 

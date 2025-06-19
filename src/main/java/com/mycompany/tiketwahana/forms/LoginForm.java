@@ -20,14 +20,13 @@ public class LoginForm extends JFrame {
     private void initComponents() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);        setTitle("Login - Sistem Manajemen Tiket Wahana");
         setSize(400, 300);
-        setResizable(false);
-        
-        // Main panel
+        setResizable(false);        
+        // Panel utama
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
         
-        // Title panel
+        // Panel judul
         JPanel titlePanel = new JPanel();
         titlePanel.setBackground(new Color(76, 175, 80));
         titlePanel.setPreferredSize(new Dimension(400, 60));
@@ -36,7 +35,7 @@ public class LoginForm extends JFrame {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titlePanel.add(titleLabel);
         
-        // Form panel
+        // Panel form input
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new GridBagLayout());
         formPanel.setBackground(Color.WHITE);
@@ -45,7 +44,7 @@ public class LoginForm extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         
-        // Username label and field
+        // Label dan field username
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -59,7 +58,7 @@ public class LoginForm extends JFrame {
         usernameField.setFont(new Font("Arial", Font.PLAIN, 14));
         formPanel.add(usernameField, gbc);
         
-        // Password label and field
+        // Label dan field password
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.NONE;
@@ -73,12 +72,12 @@ public class LoginForm extends JFrame {
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         formPanel.add(passwordField, gbc);
         
-        // Login button
+        // Tombol login
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;        loginButton = new JButton("LOGIN");
+        gbc.anchor = GridBagConstraints.CENTER;loginButton = new JButton("LOGIN");
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));        loginButton.setBackground(new Color(76, 175, 80));
         loginButton.setForeground(Color.BLACK);
         loginButton.setPreferredSize(new Dimension(100, 35));
@@ -86,11 +85,10 @@ public class LoginForm extends JFrame {
         formPanel.add(loginButton, gbc);
         
         mainPanel.add(titlePanel, BorderLayout.NORTH);
-        mainPanel.add(formPanel, BorderLayout.CENTER);
-        
+        mainPanel.add(formPanel, BorderLayout.CENTER);        
         add(mainPanel);
         
-        // Set enter key to trigger login
+        // Atur tombol Enter untuk login
         getRootPane().setDefaultButton(loginButton);
     }
     
@@ -106,7 +104,7 @@ public class LoginForm extends JFrame {
             }
             
             if (authenticateUser(username, password)) {
-                // Success - show success message and open main form
+                // Berhasil - tampilkan pesan sukses dan buka form utama
                 showSuccessDialog("Login berhasil!\nSelamat datang Administrator\nRole: ADMIN");
                 this.openMainForm();
                 dispose();
@@ -115,7 +113,7 @@ public class LoginForm extends JFrame {
             }
         }
           private boolean authenticateUser(String username, String password) {
-            // Database authentication
+            // Otentikasi database
             try {
                 Connection conn = DatabaseConnection.getConnection();
                 if (conn != null) {
@@ -124,9 +122,8 @@ public class LoginForm extends JFrame {
                     pstmt.setString(1, username);
                     pstmt.setString(2, password);
                     ResultSet rs = pstmt.executeQuery();
-                    
-                    if (rs.next()) {
-                        // Store user info for session
+                      if (rs.next()) {
+                        // Simpan info user untuk session
                         String fullName = rs.getString("full_name");
                         String role = rs.getString("role");
                         System.out.println("Login successful - User: " + fullName + ", Role: " + role);
@@ -134,14 +131,14 @@ public class LoginForm extends JFrame {
                     }
                 }
             } catch (SQLException ex) {
-                System.err.println("Database authentication error: " + ex.getMessage());
+                System.err.println("Kesalahan autentikasi database: " + ex.getMessage());
                 ex.printStackTrace();
                 
-                // Fallback to demo credentials if database fails
+                // Fallback ke kredensial demo jika database gagal
                 if ("admin".equals(username) && "admin".equals(password)) {
                     System.out.println("Using fallback demo credentials");
                     return true;
-                }        }
+                }}
             
             return false;
         }

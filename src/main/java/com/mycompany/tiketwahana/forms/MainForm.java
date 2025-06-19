@@ -20,12 +20,11 @@ public class MainForm extends JFrame {
     
     private void initComponents() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("Sistem Manajemen Tiket Wahana - ADMIN");
-        
-        // Main panel
+        setTitle("Sistem Manajemen Tiket Wahana - ADMIN");        
+        // Panel utama
         JPanel mainPanel = new JPanel(new BorderLayout());
         
-        // Header panel
+        // Panel header
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(76, 175, 80));
         headerPanel.setPreferredSize(new Dimension(0, 80));
@@ -53,12 +52,11 @@ public class MainForm extends JFrame {
         headerPanel.add(userLabel, BorderLayout.EAST);
         headerPanel.add(titlePanel, BorderLayout.CENTER);
         
-        // Main content area - Ticket Wahana Display
+        // Area konten utama - Tampilan Wahana
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
-        contentPanel.setBackground(new Color(236, 240, 241));
-        
-        // Current wahana display panel
+        contentPanel.setBackground(new Color(236, 240, 241));        
+        // Panel tampilan wahana saat ini
         JPanel wahanaDisplayPanel = new JPanel();
         wahanaDisplayPanel.setLayout(new BoxLayout(wahanaDisplayPanel, BoxLayout.Y_AXIS));
         wahanaDisplayPanel.setBackground(Color.WHITE);
@@ -68,10 +66,10 @@ public class MainForm extends JFrame {
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
         
-        // Load wahana data from database
+        // Muat data wahana dari database
         List<String[]> wahanaData = loadWahanaFromDatabase();
         
-        // Calculate grid size based on number of items
+        // Hitung ukuran grid berdasarkan jumlah item
         int itemCount = wahanaData.size();
         int cols = Math.min(3, itemCount);
         int rows = (int) Math.ceil((double) itemCount / cols);
@@ -93,12 +91,12 @@ public class MainForm extends JFrame {
         
         contentPanel.add(scrollPane, BorderLayout.CENTER);
         
-        // Bottom customization panel
+        // Panel bawah untuk kustomisasi
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setBackground(new Color(236, 240, 241));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
         
-        // Customization buttons panel
+        // Panel tombol kustomisasi
         JPanel customPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         customPanel.setBackground(new Color(236, 240, 241));
         
@@ -106,7 +104,7 @@ public class MainForm extends JFrame {
         JButton btnTransaksi = createCustomButton("Transaksi Tiket", new Color(46, 204, 113));
         JButton btnLaporan = createCustomButton("Laporan", new Color(155, 89, 182));
         JButton btnPengaturan = createCustomButton("Pengaturan", new Color(149, 165, 166));
-        JButton btnLogout = createCustomButton("Logout", new Color(231, 76, 60));        // Add action listeners for buttons
+        JButton btnLogout = createCustomButton("Logout", new Color(231, 76, 60));        // Tambah action listener untuk tombol-tombol
         btnManageWahana.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 openWahanaManagement();
@@ -143,11 +141,10 @@ public class MainForm extends JFrame {
         customPanel.add(btnTransaksi);
         customPanel.add(btnLaporan);
         customPanel.add(btnPengaturan);
-        customPanel.add(btnLogout);
-        
+        customPanel.add(btnLogout);        
         bottomPanel.add(customPanel, BorderLayout.CENTER);
         
-        // Footer info panel
+        // Panel footer info
         JPanel footerPanel = new JPanel();
         footerPanel.setBackground(new Color(44, 62, 80));
         footerPanel.setPreferredSize(new Dimension(0, 30));
@@ -158,7 +155,7 @@ public class MainForm extends JFrame {
         footerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         footerPanel.add(footerLabel);
         
-        // Combine bottom panel and footer into one south panel
+        // Gabung panel bawah dan footer jadi satu panel selatan
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(bottomPanel, BorderLayout.CENTER);
         southPanel.add(footerPanel, BorderLayout.SOUTH);
@@ -191,11 +188,10 @@ public class MainForm extends JFrame {
                     wahanaList.add(wahana);
                 }
                 rs.close();
-                stmt.close();
-            }
+                stmt.close();            }
         } catch (SQLException e) {
             e.printStackTrace();
-            // If database fails, return hardcoded data as fallback
+            // Jika database gagal, gunakan data hardcode sebagai fallback
             wahanaList.add(new String[]{"W001", "Kereta Gantung", "Rp 25,000", "40 orang", "45 menit", "AKTIF"});
             wahanaList.add(new String[]{"W002", "Sea World", "Rp 35,000", "100 orang", "60 menit", "AKTIF"});
             wahanaList.add(new String[]{"W003", "Otomotive Museum", "Rp 20,000", "50 orang", "90 menit", "AKTIF"});
@@ -215,7 +211,7 @@ public class MainForm extends JFrame {
             BorderFactory.createEmptyBorder(15, 15, 15, 15)
         ));
         
-        // Header with wahana code and status
+        // Header dengan kode wahana dan status
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(76, 175, 80));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
@@ -234,7 +230,7 @@ public class MainForm extends JFrame {
         headerPanel.add(kodeLabel, BorderLayout.WEST);
         headerPanel.add(statusLabel, BorderLayout.EAST);
         
-        // Content panel
+        // Panel konten
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setBackground(Color.WHITE);
@@ -266,8 +262,7 @@ public class MainForm extends JFrame {
         
         card.add(headerPanel, BorderLayout.NORTH);
         card.add(contentPanel, BorderLayout.CENTER);
-        
-        // Add hover effect
+          // Efek hover untuk interaksi
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 card.setBackground(new Color(248, 249, 250));
@@ -306,8 +301,7 @@ public class MainForm extends JFrame {
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setOpaque(true);
-        
-        // Add hover effect
+          // Efek hover untuk tombol
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             Color originalColor = backgroundColor;
             
@@ -323,8 +317,7 @@ public class MainForm extends JFrame {
     }
       private void openWahanaManagement() {
         WahanaManagementForm wahanaForm = new WahanaManagementForm(this);
-        wahanaForm.setVisible(true);
-        // Refresh the main display after wahana management
+        wahanaForm.setVisible(true);        // Refresh tampilan utama setelah manajemen wahana
         SwingUtilities.invokeLater(() -> {
             this.dispose();
             new MainForm().setVisible(true);

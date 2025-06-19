@@ -29,13 +29,12 @@ public class TransaksiForm extends JDialog {
         
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        mainPanel.setBackground(Color.WHITE);
-        
+        mainPanel.setBackground(Color.WHITE);        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
         
-        // Customer Info
+        // Info pelanggan
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         JLabel titleLabel = new JLabel("TRANSAKSI TIKET WAHANA");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -55,7 +54,7 @@ public class TransaksiForm extends JDialog {
         txtTelepon = new JTextField(20);
         mainPanel.add(txtTelepon, gbc);
         
-        // Wahana Selection
+        // Pilihan wahana
         gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE;
         mainPanel.add(new JLabel("Pilih Wahana:"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -80,9 +79,8 @@ public class TransaksiForm extends JDialog {
                 hitungTotal();
             }
         });
-        mainPanel.add(txtJumlah, gbc);
-        
-        // Payment Info
+        mainPanel.add(txtJumlah, gbc);        
+        // Info pembayaran
         gbc.gridx = 0; gbc.gridy = 6; gbc.fill = GridBagConstraints.NONE;
         mainPanel.add(new JLabel("Total Harga:"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -112,7 +110,7 @@ public class TransaksiForm extends JDialog {
         txtKembalian.setFont(new Font("Arial", Font.BOLD, 14));
         mainPanel.add(txtKembalian, gbc);
         
-        // Buttons
+        // Tombol-tombol
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.setBackground(Color.WHITE);
           btnHitung = new JButton("Hitung Total");
@@ -158,9 +156,8 @@ public class TransaksiForm extends JDialog {
                 }
                 rs.close();
                 stmt.close();
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error loading wahana: " + e.getMessage());
+            }        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Kesalahan saat memuat wahana: " + e.getMessage());
         }
     }
     
@@ -184,9 +181,8 @@ public class TransaksiForm extends JDialog {
                     }
                     rs.close();
                     pstmt.close();
-                }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Error getting price: " + e.getMessage());
+                }            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Kesalahan saat mengambil harga: " + e.getMessage());
             }
         } else {
             hargaSatuan = 0;
@@ -231,10 +227,10 @@ public class TransaksiForm extends JDialog {
                 if (conn != null) {
                     conn.setAutoCommit(false);
                     
-                    // Generate transaction code
+                    // Generate kode transaksi
                     String kodeTransaksi = "TRX" + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
                     
-                    // Get wahana ID
+                    // Ambil ID wahana
                     String selectedItem = cmbWahana.getSelectedItem().toString();
                     String kodeWahana = selectedItem.split(" - ")[0];
                     
@@ -248,8 +244,7 @@ public class TransaksiForm extends JDialog {
                     }
                     rsWahana.close();
                     pstmtWahana.close();
-                    
-                    // Insert transaction
+                      // Masukkan data transaksi
                     String sqlTransaksi = "INSERT INTO transaksi (kode_transaksi, nama_customer, total_tiket, total_amount, payment_amount, change_amount) VALUES (?, ?, ?, ?, ?, ?)";
                     PreparedStatement pstmtTransaksi = conn.prepareStatement(sqlTransaksi, Statement.RETURN_GENERATED_KEYS);
                     
@@ -264,18 +259,15 @@ public class TransaksiForm extends JDialog {
                     pstmtTransaksi.setDouble(4, total);
                     pstmtTransaksi.setDouble(5, bayar);
                     pstmtTransaksi.setDouble(6, kembalian);
-                    
-                    pstmtTransaksi.executeUpdate();
+                      pstmtTransaksi.executeUpdate();
                     
                     ResultSet generatedKeys = pstmtTransaksi.getGeneratedKeys();
-                    int transaksiId = 0;
-                    if (generatedKeys.next()) {
-                        transaksiId = generatedKeys.getInt(1);
+                    if (generatedKeys.next()) {                        // ID transaksi disimpan untuk referensi
+                        generatedKeys.getInt(1);
                     }
                     generatedKeys.close();
                     pstmtTransaksi.close();
-                    
-                    // Insert tickets
+                      // Masukkan data tiket
                     for (int i = 0; i < jumlah; i++) {
                         String kodeTicket = "TKT" + new SimpleDateFormat("yyyyMMdd").format(new Date()) + 
                                           String.format("%03d", i + 1) + System.currentTimeMillis() % 1000;
@@ -305,7 +297,7 @@ public class TransaksiForm extends JDialog {
                     resetForm();
                 }
             } catch (SQLException | NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Error saving transaction: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Kesalahan saat menyimpan transaksi: " + e.getMessage());
             }
         }
     }
