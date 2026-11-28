@@ -84,8 +84,14 @@ CREATE TABLE IF NOT EXISTS pengunjung_log (
     CONSTRAINT fk_log_admin FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_tiket_tanggal ON tiket(tanggal_kunjungan);
-CREATE INDEX idx_transaksi_tanggal ON transaksi(tanggal_transaksi);
+SET @idx_tiket_date = (SELECT IF(COUNT(*) = 0,
+    'CREATE INDEX idx_tiket_tanggal ON tiket(tanggal_kunjungan)', 'SELECT 1')
+    FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tiket' AND INDEX_NAME = 'idx_tiket_tanggal');
+PREPARE idx_tiket_date_stmt FROM @idx_tiket_date; EXECUTE idx_tiket_date_stmt; DEALLOCATE PREPARE idx_tiket_date_stmt;
+SET @idx_trans_date = (SELECT IF(COUNT(*) = 0,
+    'CREATE INDEX idx_transaksi_tanggal ON transaksi(tanggal_transaksi)', 'SELECT 1')
+    FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'transaksi' AND INDEX_NAME = 'idx_transaksi_tanggal');
+PREPARE idx_trans_date_stmt FROM @idx_trans_date; EXECUTE idx_trans_date_stmt; DEALLOCATE PREPARE idx_trans_date_stmt;
 
 CREATE OR REPLACE VIEW view_tiket_aktif AS
 SELECT t.id, t.kode_tiket, t.nama_pengunjung, t.no_telepon,
@@ -106,10 +112,7 @@ FROM transaksi tr
 GROUP BY DATE(tr.tanggal_transaksi)
 ORDER BY tanggal DESC;
 
-INSERT IGNORE INTO users (username, password_hash, full_name, role, must_change_password)
-VALUES ('admin', '', 'Administrator', 'ADMIN', TRUE);
-
-INSERT INTO wahana (kode_wahana, nama_wahana, deskripsi, harga_tiket, kapasitas_max, durasi_menit) VALUES
+INSERT IGNORE INTO wahana (kode_wahana, nama_wahana, deskripsi, harga_tiket, kapasitas_max, durasi_menit) VALUES
 ('W001', 'Kereta Gantung', 'Nikmati pemandangan dari ketinggian dengan kereta gantung yang aman dan nyaman', 25000, 40, 45),
 ('W002', 'Sea World', 'Jelajahi dunia bawah laut dengan berbagai koleksi ikan dan biota laut', 35000, 100, 60),
 ('W003', 'Otomotive Museum', 'Museum koleksi mobil klasik dan modern dari berbagai era', 20000, 50, 90),
@@ -118,12 +121,31 @@ INSERT INTO wahana (kode_wahana, nama_wahana, deskripsi, harga_tiket, kapasitas_
 ('W006', 'Water Park', 'Kolam renang dengan berbagai wahana air yang menyegarkan', 30000, 150, 180);
 
 
+CREATE TABLE IF NOT EXISTS schema_version (version VARCHAR(20) PRIMARY KEY, applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB;
+
 -- 002: RBAC, hashed credentials, shifts, audit trail, ledger-correct sales,
 -- and reporting views that agree with the transaction table.
 
 -- 1. Roles and credentials -------------------------------------------------
 ALTER TABLE users
     MODIFY COLUMN role ENUM('ADMIN','KASIR','MANAGER') NOT NULL DEFAULT 'KASIR';
+
+-- Existing v1 installs have a plaintext password column but no hash columns.
+-- INFORMATION_SCHEMA makes this idempotent on both fresh and upgraded installs.
+SET @add_hash = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE users ADD COLUMN password_hash VARCHAR(255) NOT NULL DEFAULT '' AFTER username',
+    'SELECT 1') FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'password_hash');
+PREPARE add_hash_stmt FROM @add_hash;
+EXECUTE add_hash_stmt;
+DEALLOCATE PREPARE add_hash_stmt;
+SET @add_must_change = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE users ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT TRUE',
+    'SELECT 1') FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'must_change_password');
+PREPARE add_must_change_stmt FROM @add_must_change;
+EXECUTE add_must_change_stmt;
+DEALLOCATE PREPARE add_must_change_stmt;
 
 -- 2. Shifts and audit log --------------------------------------------------
 CREATE TABLE IF NOT EXISTS shifts (

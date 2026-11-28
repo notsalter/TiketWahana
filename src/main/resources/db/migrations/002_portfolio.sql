@@ -5,6 +5,23 @@
 ALTER TABLE users
     MODIFY COLUMN role ENUM('ADMIN','KASIR','MANAGER') NOT NULL DEFAULT 'KASIR';
 
+-- Existing v1 installs have a plaintext password column but no hash columns.
+-- INFORMATION_SCHEMA makes this idempotent on both fresh and upgraded installs.
+SET @add_hash = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE users ADD COLUMN password_hash VARCHAR(255) NOT NULL DEFAULT '' AFTER username',
+    'SELECT 1') FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'password_hash');
+PREPARE add_hash_stmt FROM @add_hash;
+EXECUTE add_hash_stmt;
+DEALLOCATE PREPARE add_hash_stmt;
+SET @add_must_change = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE users ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT TRUE',
+    'SELECT 1') FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'must_change_password');
+PREPARE add_must_change_stmt FROM @add_must_change;
+EXECUTE add_must_change_stmt;
+DEALLOCATE PREPARE add_must_change_stmt;
+
 -- 2. Shifts and audit log --------------------------------------------------
 CREATE TABLE IF NOT EXISTS shifts (
     id INT AUTO_INCREMENT PRIMARY KEY,
