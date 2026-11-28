@@ -6,7 +6,7 @@ import java.util.Set;
 public enum Role {
     ADMIN("Administrator", EnumSet.allOf(Permission.class)),
     MANAGER("Manager", EnumSet.of(Permission.SELL, Permission.VOID, Permission.REFUND,
-            Permission.VIEW_REPORT, Permission.REDEEM, Permission.SHIFT, Permission.AUDIT)),
+            Permission.MANAGE_WAHANA, Permission.VIEW_REPORT, Permission.REDEEM, Permission.SHIFT, Permission.AUDIT)),
     KASIR("Kasir", EnumSet.of(Permission.SELL, Permission.REDEEM, Permission.SHIFT));
 
     private final String label;

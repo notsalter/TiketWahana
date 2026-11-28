@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.prefs.Preferences;
 
 /**
  * Configuration resolution order: -Dtiket.config, ./db.properties, ~/.tiketwahana/db.properties,
@@ -43,6 +44,13 @@ public final class Env {
                 break;
             }
         }
+        Preferences prefs = Preferences.userRoot().node("tiketwahana");
+        for (String key : new String[] {"ui.theme", "ui.motion"}) {
+            String value = prefs.get(key, null);
+            if (value != null && !value.isBlank()) {
+                p.setProperty(key, value);
+            }
+        }
         resolved = p;
         return p;
     }
@@ -66,6 +74,14 @@ public final class Env {
             return Integer.parseInt(get(key).trim());
         } catch (RuntimeException e) {
             return fallback;
+        }
+    }
+
+    /** Persist a UI preference without rewriting the database config file. */
+    public static synchronized void set(String key, String value) {
+        properties().setProperty(key, value);
+        if (key.startsWith("ui.")) {
+            Preferences.userRoot().node("tiketwahana").put(key, value);
         }
     }
 

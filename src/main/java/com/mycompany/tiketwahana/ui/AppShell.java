@@ -325,7 +325,7 @@ public class AppShell extends JPanel {
 
     public void toggleTheme() {
         Theme.toggle();
-        com.mycompany.tiketwahana.core.Env.properties().setProperty("ui.theme",
+        com.mycompany.tiketwahana.core.Env.set("ui.theme",
                 Theme.mode() == Theme.Mode.DARK ? "dark" : "light");
         applyThemeToTree();
     }

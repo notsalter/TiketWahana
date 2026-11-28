@@ -59,7 +59,9 @@ public class PosScreen extends Screen {
     private final TextInput customer = new TextInput("Nama pengunjung");
     private final TextInput phone = new TextInput("Nomor telepon (opsional)");
     private final TextInput discount = new TextInput("Diskon (opsional)");
-    private final TextInput received = new TextInput("Uang diterima");
+    private final TextInput cashReceived = new TextInput("Tunai");
+    private final TextInput debitReceived = new TextInput("Debit");
+    private final TextInput qrisReceived = new TextInput("QRIS");
     private final JSpinner date = new JSpinner(new SpinnerNumberModel(0, 0, 365, 1));
     private final JLabel dateLabel = new JLabel("Hari ini");
     private final List<Wahana> allWahana = new ArrayList<>();
@@ -71,7 +73,9 @@ public class PosScreen extends Screen {
         add(new SectionHeader("Kasir", "Buat tiket untuk pengunjung dan lihat totalnya sebelum pembayaran."), BorderLayout.NORTH);
         add(buildBody(), BorderLayout.CENTER);
         search.onChange(this::filterCatalogue);
-        received.onChange(this::updateTotals);
+        cashReceived.onChange(this::updateTotals);
+        debitReceived.onChange(this::updateTotals);
+        qrisReceived.onChange(this::updateTotals);
         discount.onChange(this::updateTotals);
     }
 
@@ -181,12 +185,11 @@ public class PosScreen extends Screen {
         checkout.add(Box.createVerticalStrut(8));
         checkout.add(summaryRow("Total", totalLabel));
         checkout.add(Box.createVerticalStrut(10));
-        JPanel payment = new JPanel(new GridLayout(1, 2, 8, 0));
-        payment.setOpaque(false);
-        payment.add(received);
-        JComboBox<String> method = new JComboBox<>(new String[] {"Tunai", "Debit", "QRIS"});
-        method.setFont(Fonts.regular(12));
-        payment.add(method);
+        JLabel paymentLabel = new JLabel("Pembayaran dapat dibagi ke beberapa metode");
+        paymentLabel.setFont(Fonts.regular(11)); paymentLabel.setForeground(Theme.p().muted());
+        checkout.add(paymentLabel); checkout.add(Box.createVerticalStrut(6));
+        JPanel payment = new JPanel(new GridLayout(1, 3, 8, 0)); payment.setOpaque(false);
+        payment.add(cashReceived); payment.add(debitReceived); payment.add(qrisReceived);
         checkout.add(payment);
         checkout.add(Box.createVerticalStrut(7));
         checkout.add(summaryRow("Kembalian", changeLabel));
@@ -195,7 +198,7 @@ public class PosScreen extends Screen {
         FlatButton sell = Buttons.primary("Selesaikan penjualan", "check");
         sell.setName("sellButton");
         sell.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-        sell.addActionListener(e -> sell(method.getSelectedIndex()));
+        sell.addActionListener(e -> sell());
         checkout.add(sell);
         return checkout;
     }
@@ -335,19 +338,36 @@ public class PosScreen extends Screen {
     private void updateTotals() {
         BigDecimal sub=subtotal(), dis=discountValue().min(sub).max(Money.ZERO), total=Money.scale(sub.subtract(dis));
         subtotalLabel.setText(Money.format(sub)); discountLabel.setText(Money.format(dis)); totalLabel.setText(Money.format(total));
-        BigDecimal paid; try { paid=Money.parse(received.text().isBlank()?"0":received.text()); } catch(Exception e){paid=Money.ZERO;}
+        BigDecimal paid = parsePayment(cashReceived.text()).add(parsePayment(debitReceived.text())).add(parsePayment(qrisReceived.text()));
         changeLabel.setText(Money.format(Money.scale(paid.subtract(total).max(Money.ZERO))));
     }
 
-    private void sell(int methodIndex) {
+    private BigDecimal parsePayment(String raw) {
+        return raw == null || raw.isBlank() ? Money.ZERO : Money.parse(raw);
+    }
+
+    private void sell() {
         if (!ctx.shiftOpen()) { Toast.warn(this, "Buka shift terlebih dahulu sebelum menjual tiket."); return; }
-        BigDecimal paid; try { paid=Money.parse(received.text()); } catch(Exception e){ Toast.error(this,"Uang diterima belum valid."); return; }
-        BigDecimal cash=methodIndex==0?paid:Money.ZERO, debit=methodIndex==1?paid:Money.ZERO, qris=methodIndex==2?paid:Money.ZERO;
+        BigDecimal cash, debit, qris;
+        try { cash=parsePayment(cashReceived.text()); debit=parsePayment(debitReceived.text()); qris=parsePayment(qrisReceived.text()); }
+        catch(Exception e){ Toast.error(this,"Nominal pembayaran belum valid."); return; }
+        if (cash.add(debit).add(qris).signum() <= 0) { Toast.error(this,"Masukkan minimal satu nominal pembayaran."); return; }
         Sale.Request request = new Sale.Request(customer.text(), phone.text(), visitDate(), new ArrayList<>(lines), discountValue(), cash, debit, qris, null);
         new SwingWorker<Sale.Result,Void>() {
             String failure;
             @Override protected Sale.Result doInBackground(){try{return ctx.sales.sell(ctx.user,request);}catch(ServiceException e){failure=e.getMessage();return null;}}
-            @Override protected void done(){if(failure!=null){Toast.error(PosScreen.this,failure);return;}try{Sale.Result r=get();lines.clear();customer.clear();phone.clear();discount.clear();received.clear();renderCart();Toast.success(PosScreen.this,"Penjualan "+r.transactionCode()+" berhasil. "+r.ticketCount()+" tiket dibuat.");}catch(Exception e){Toast.error(PosScreen.this,"Penjualan gagal: "+e.getMessage());}}
+            @Override protected void done(){if(failure!=null){Toast.error(PosScreen.this,failure);return;}try{Sale.Result r=get();lines.clear();customer.clear();phone.clear();discount.clear();cashReceived.clear();debitReceived.clear();qrisReceived.clear();renderCart();showReceipt(r);Toast.success(PosScreen.this,"Penjualan "+r.transactionCode()+" berhasil. "+r.ticketCount()+" tiket dibuat.");}catch(Exception e){Toast.error(PosScreen.this,"Penjualan gagal: "+e.getMessage());}}
         }.execute();
     }
+    private void showReceipt(Sale.Result sale) {
+        javax.swing.JDialog dialog = new javax.swing.JDialog(javax.swing.SwingUtilities.getWindowAncestor(this), "Struk " + sale.transactionCode(), java.awt.Dialog.ModalityType.MODELESS);
+        dialog.setLayout(new BorderLayout(0, 10));
+        dialog.add(new com.mycompany.tiketwahana.ui.Receipt(sale), BorderLayout.CENTER);
+        var print = com.mycompany.tiketwahana.ui.Buttons.primary("Cetak struk", "print");
+        print.addActionListener(e -> { try { com.mycompany.tiketwahana.ui.Receipt.print(sale); } catch (Exception ex) { com.mycompany.tiketwahana.ui.Toast.error(dialog, "Printer tidak tersedia: " + ex.getMessage()); } });
+        var close = com.mycompany.tiketwahana.ui.Buttons.secondary("Tutup"); close.addActionListener(e -> dialog.dispose());
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 8)); actions.add(close); actions.add(print); dialog.add(actions, BorderLayout.SOUTH);
+        dialog.pack(); dialog.setLocationRelativeTo(this); dialog.setVisible(true);
+    }
+
 }

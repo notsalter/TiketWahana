@@ -147,8 +147,8 @@ public final class Auth {
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     try (PreparedStatement ins = connection.prepareStatement(
-                            "INSERT INTO users (username, password, password_hash, full_name, role, must_change_password) "
-                                    + "VALUES ('admin','', ?, 'Administrator', 'ADMIN', TRUE)")) {
+                            "INSERT INTO users (username, password_hash, full_name, role, must_change_password) "
+                                    + "VALUES ('admin', ?, 'Administrator', 'ADMIN', TRUE)")) {
                         ins.setString(1, hash("admin12345"));
                         ins.executeUpdate();
                     }
