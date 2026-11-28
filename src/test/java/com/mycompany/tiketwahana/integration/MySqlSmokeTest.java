@@ -33,6 +33,10 @@ class MySqlSmokeTest {
         assertEquals(sale.total(),sale.paid());
         BigDecimal ledger=db.withConnection(c->{try(var ps=c.prepareStatement("SELECT (SELECT total_amount FROM transaksi WHERE id=?), (SELECT COALESCE(SUM(total_harga),0) FROM tiket t JOIN transaksi_detail d ON d.id=t.transaksi_detail_id WHERE d.transaksi_id=?), (SELECT COALESCE(SUM(subtotal),0) FROM transaksi_detail WHERE transaksi_id=?)")){ps.setInt(1,sale.transactionId());ps.setInt(2,sale.transactionId());ps.setInt(3,sale.transactionId());try(var rs=ps.executeQuery()){assertTrue(rs.next());assertEquals(rs.getBigDecimal(1),rs.getBigDecimal(2));assertEquals(rs.getBigDecimal(1),rs.getBigDecimal(3));return rs.getBigDecimal(1);}}});
         assertEquals(sale.total(),ledger);
+        java.nio.file.Path pdf = java.nio.file.Path.of("target", "smoke-receipt.pdf");
+        new com.mycompany.tiketwahana.ui.Receipt(sale).exportPdf(pdf);
+        assertTrue(java.nio.file.Files.size(pdf) > 100);
+        assertEquals("%PDF-1.4", java.nio.file.Files.readString(pdf).substring(0, 8));
         TicketRow first=new TicketService(db).recent(1).get(0);
         assertTrue(new TicketService(db).redeem(user,first.kode()).active()==false);
         assertThrows(ServiceException.class,()->new TicketService(db).redeem(user,first.kode()));
