@@ -1,28 +1,18 @@
 package com.mycompany.tiketwahana;
 
 import com.mycompany.tiketwahana.forms.LoginForm;
-import javax.swing.SwingUtilities;
+import java.awt.EventQueue;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
-/**
- * Kelas Utama Aplikasi Tiket Wahana
- * Berfungsi sebagai titik masuk program dan menginisialisasi tampilan login
- * @author salter
- */
-public class MainApp {
-    
-    public static void main(String[] args) {        // Mengatur tampilan sesuai sistem operasi
+/** Launches the desktop app on Swing's EDT. */
+public final class MainApp {
+    private MainApp() {}
+    public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | 
-                 IllegalAccessException | UnsupportedLookAndFeelException e) {
-            System.err.println("Tidak dapat mengatur tampilan sistem: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Look and feel sistem tidak tersedia: " + e.getMessage());
         }
-        
-        // Jalankan aplikasi di thread EDT
-        SwingUtilities.invokeLater(() -> {
-            new LoginForm().setVisible(true);
-        });
+        EventQueue.invokeLater(() -> new LoginForm().setVisible(true));
     }
 }

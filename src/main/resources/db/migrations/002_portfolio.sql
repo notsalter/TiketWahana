@@ -3,9 +3,7 @@
 
 -- 1. Roles and credentials -------------------------------------------------
 ALTER TABLE users
-    MODIFY COLUMN role ENUM('ADMIN','KASIR','MANAGER') NOT NULL DEFAULT 'KASIR',
-    ADD COLUMN password_hash VARCHAR(255) NULL AFTER password,
-    ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT TRUE;
+    MODIFY COLUMN role ENUM('ADMIN','KASIR','MANAGER') NOT NULL DEFAULT 'KASIR';
 
 -- 2. Shifts and audit log --------------------------------------------------
 CREATE TABLE IF NOT EXISTS shifts (

@@ -4,9 +4,10 @@
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL DEFAULT '',
     full_name VARCHAR(100) NOT NULL,
     role ENUM('ADMIN') DEFAULT 'ADMIN',
+    must_change_password BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE
@@ -102,8 +103,8 @@ FROM transaksi tr
 GROUP BY DATE(tr.tanggal_transaksi)
 ORDER BY tanggal DESC;
 
-INSERT INTO users (username, password, full_name, role)
-VALUES ('admin', 'admin', 'Administrator', 'ADMIN');
+INSERT IGNORE INTO users (username, password_hash, full_name, role, must_change_password)
+VALUES ('admin', '', 'Administrator', 'ADMIN', TRUE);
 
 INSERT INTO wahana (kode_wahana, nama_wahana, deskripsi, harga_tiket, kapasitas_max, durasi_menit) VALUES
 ('W001', 'Kereta Gantung', 'Nikmati pemandangan dari ketinggian dengan kereta gantung yang aman dan nyaman', 25000, 40, 45),
