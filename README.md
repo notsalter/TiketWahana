@@ -1,178 +1,130 @@
-# Sistem Manajemen Tiket Wahana
+# TiketWahana
 
-## Deskripsi Proyek
-Aplikasi desktop untuk mengelola sistem tiket wahana (taman hiburan) menggunakan Java Swing dan database MySQL. Aplikasi ini memungkinkan administrator untuk mengelola wahana, transaksi tiket, dan laporan penjualan.
+Aplikasi desktop untuk mengelola penjualan tiket taman hiburan: katalog wahana, kasir, validasi tiket masuk, shift kas, laporan, dan audit. Dibangun dengan Java Swing dan Java2D di atas Java 17, JDBC, dan MySQL 8 — tanpa framework UI, tanpa ORM.
 
-## Fitur Utama
-- **Login System**: Autentikasi pengguna dengan role-based access
-- **Dashboard Wahana**: Tampilan utama menampilkan semua wahana yang tersedia
-- **Management Features**: Kelola wahana, transaksi tiket, laporan, dan pengaturan
-- **Modern UI**: Interface yang modern dan user-friendly dengan hover effects
+![Dashboard](docs/screenshots/dashboard.png)
 
-## Wahana yang Tersedia
-1. **W001 - Kereta Gantung** (Rp 25.000)
-2. **W002 - Sea World** (Rp 35.000)
-3. **W003 - Otomotive Museum** (Rp 20.000)
-4. **W004 - Dunia Fantasi** (Rp 40.000)
-5. **W005 - Roller Coaster** (Rp 50.000)
-6. **W006 - Water Park** (Rp 30.000)
+## Fitur
 
-## Teknologi yang Digunakan
-- **Java 17+**: Bahasa pemrograman utama
-- **Java Swing**: Framework GUI
-- **MySQL 8.0**: Database management system
-- **JDBC**: Database connectivity
-- **Maven**: Build management
-- **NetBeans**: IDE development
+**Kasir**
+- Keranjang multi-wahana dengan jumlah tiket per baris, diskon, dan parkir/pulihkan transaksi
+- Pembayaran terpisah untuk tunai, debit, dan QRIS, dengan kembalian yang dihitung dari ledger
+- Pemeriksaan kapasitas per wahana per tanggal kunjungan sebelum tiket dicetak
+- Struk dengan pratinjau Java2D, cetak ke printer, dan ekspor PDF
 
-## Setup dan Instalasi
+![Kasir](docs/screenshots/pos.png)
 
-### 1. Prerequisites
-- Java Development Kit (JDK) 17 atau lebih tinggi
-- MySQL Server (XAMPP/WAMP recommended)
-- Apache Maven 3.6+
-- NetBeans IDE (optional)
+**Tiket dan pintu masuk**
+- Validasi kode tiket sekali pakai; tiket yang sudah dipakai atau direfund ditolak dengan alasan
+- Riwayat tiket beserta status dan petugas yang memvalidasi
 
-### 2. Database Setup
-1. Jalankan MySQL server (melalui XAMPP/WAMP)
-2. Buka phpMyAdmin di `http://localhost/phpmyadmin`
-3. Import file `database_schema.sql` untuk membuat database dan tabel
-4. Database `ticket_wahana_db` akan terbuat otomatis
-5. Pastikan MySQL berjalan di port 3306
+**Operasional**
+- Shift kasir: modal awal, kas yang diharapkan, kas terhitung, dan selisih
+- Peran `ADMIN`, `MANAGER`, dan `KASIR` dengan izin yang diperiksa di lapisan service
+- Audit trail untuk login, penjualan, pembatalan, validasi tiket, perubahan harga, dan shift
 
-### 3. Konfigurasi Database
-Default configuration (dapat diubah di `DatabaseConnection.java`):
-```
-URL: jdbc:mysql://localhost:3306/ticket_wahana_db
-Username: root
-Password: (kosong)
-```
+**Laporan**
+- Rekap per tanggal kunjungan dan per wahana
+- Ekspor CSV
+- Tren pendapatan 30 hari dan peta kunjungan yang digambar dengan Java2D
 
-### 4. Build dan Run Aplikasi
+![Laporan](docs/screenshots/report.png)
 
-#### Via Command Line:
+**Antarmuka**
+- Tema terang dan gelap yang tersimpan, font Inter dan JetBrains Mono yang dibundel
+- Navigasi keyboard: `Ctrl+K` command palette, `F2` kasir, `F5` muat ulang, `Ctrl+J` tema
+- Komponen, ikon, dan grafik digambar sendiri; tidak ada paket ikon atau pustaka chart
+
+## Menjalankan
+
+Kebutuhan: JDK 17+, Maven 3.9+ (atau gunakan `./mvnw`).
+
 ```bash
-# Compile project
-mvn clean compile
-
-# Run application
-mvn exec:java
+./mvnw -B verify
+./mvnw -q exec:java
 ```
 
-#### Via NetBeans:
-1. Buka project di NetBeans
-2. Right-click project → "Clean and Build"
-3. Right-click project → "Run"
+Konfigurasi database dibaca dari `db.properties` di direktori kerja, `~/.tiketwahana/db.properties`, atau `-Dtiket.config=/path/db.properties`. Nilai bawaan mengikuti setup XAMPP:
 
-#### Via IDE lain:
-1. Compile semua .java files
-2. Run `MainApp.java` sebagai main class
-
-### 5. Login Credentials
-Default login untuk testing:
-- **Username**: `admin`
-- **Password**: `admin`
-
-## Struktur Database
-
-### Tabel Utama:
-- `users`: Data pengguna dan authentication
-- `wahana`: Data wahana/atraksi
-- `tiket`: Data tiket yang dijual
-- `transaksi`: Data transaksi penjualan
-- `transaksi_detail`: Detail item dalam transaksi
-- `pengunjung_log`: Log keluar masuk pengunjung
-
-### Views untuk Reporting:
-- `view_tiket_aktif`: Tiket yang masih aktif
-- `view_penjualan_harian`: Laporan penjualan harian
-- `view_wahana_populer`: Wahana terpopuler
-
-## Struktur Project
-```
-TiketWahana/
-├── src/main/java/com/mycompany/tiketwahana/
-│   ├── MainApp.java                 # Main application entry point
-│   ├── database/
-│   │   └── DatabaseConnection.java  # Database connection management
-│   └── forms/
-│       ├── LoginForm.java          # Login interface
-│       └── MainForm.java           # Main dashboard
-├── database_schema.sql             # Database schema
-├── pom.xml                        # Maven configuration
-└── README.md                      # This file
+```properties
+db.url=jdbc:mysql://localhost:3306/ticket_wahana_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Jakarta
+db.user=root
+db.password=
 ```
 
-## Fitur Interface
+Saat pertama dijalankan aplikasi membuat tabel yang belum ada dan menerapkan migrasi bernomor dari `src/main/resources/db/migrations`. Akun awal:
 
-### Login Form
-- Modern login interface dengan validasi
-- Support untuk berbagai role user
-- Error handling yang user-friendly
+| Username | Password sementara |
+| --- | --- |
+| `admin` | `admin12345` |
 
-### Main Dashboard
-- **Header**: Judul aplikasi dan info user
-- **Content Area**: Grid layout menampilkan semua wahana
-- **Bottom Panel**: Tombol navigasi untuk fitur utama
-- **Footer**: Informasi sistem
+Password baru (minimal 8 karakter) wajib dibuat saat login pertama. Password disimpan sebagai hash PBKDF2-HMAC-SHA256 dengan salt per akun, dan login ditolak bila database tidak dapat dihubungi — tidak ada akun cadangan.
 
-### Wahana Cards
-- Display kode wahana dan status
-- Informasi harga, kapasitas, dan durasi
-- Hover effects untuk interaktivity
-- Click untuk detail informasi
+### MySQL sementara dengan Docker
 
-### Customization Buttons
-- **Kelola Wahana**: Management wahana (coming soon)
-- **Transaksi Tiket**: Penjualan tiket (coming soon)
-- **Laporan**: Report dan analytics (coming soon)
-- **Pengaturan**: System settings (coming soon)
-- **Logout**: Keluar dari sistem
+```bash
+docker run --name tiketwahana-mysql \
+  -e MYSQL_ROOT_PASSWORD=dev \
+  -e MYSQL_DATABASE=ticket_wahana_db \
+  -p 3306:3306 -d mysql:8
+```
 
-## Development Notes
+```properties
+db.url=jdbc:mysql://localhost:3306/ticket_wahana_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Jakarta
+db.user=root
+db.password=dev
+```
 
-### Design Patterns Used:
-- MVC (Model-View-Controller) pattern
-- Singleton pattern untuk database connection
-- Observer pattern untuk UI events
+`database_schema.sql` juga bisa diimpor langsung lewat phpMyAdmin untuk database kosong.
 
-### Color Scheme:
-- Primary: Green (#4CAF50)
-- Secondary: Blue (#3498DB)
-- Accent: Orange (#E67E22)
-- Background: Light Gray (#ECF0F1)
+## Struktur
 
-### Future Enhancements:
-1. Implementasi CRUD untuk manajemen wahana
-2. Sistem transaksi tiket real-time
-3. Report generator dan analytics
-4. Barcode/QR code untuk tiket
-5. Payment gateway integration
-6. Mobile app companion
+```
+src/main/java/com/mycompany/tiketwahana/
+├── MainApp.java          entry point
+├── core/                 koneksi, pool, migrasi, uang, auth, audit, sesi
+├── domain/               record domain (wahana, tiket, transaksi, shift)
+├── service/              aturan bisnis dan seluruh akses database
+└── ui/                   tema, komponen, shell, layar, chart, struk
+    └── screens/          dashboard, kasir, tiket, wahana, laporan, shift, audit, pengaturan
+src/main/resources/
+├── db/migrations/        skema bernomor
+└── fonts/                Inter dan JetBrains Mono (OFL)
+```
 
-## Troubleshooting
+Aturan yang dipegang:
 
-### Common Issues:
-1. **Database Connection Failed**
-   - Pastikan MySQL server berjalan
-   - Check username/password di DatabaseConnection.java
-   - Verify database exists
+- **Uang selalu `BigDecimal`.** `Money` menangani parsing, pembulatan, dan format Rupiah; nilai dari layar tidak pernah dipakai untuk menghitung ulang total.
+- **Satu penjualan satu transaksi.** `transaksi`, `transaksi_detail`, dan satu baris `tiket` per kursi di-commit bersama atau dibatalkan bersama. Koneksi yang dikembalikan ke pool selalu di-rollback dan dikembalikan ke auto-commit.
+- **Laporan memakai tanggal kunjungan.** Waktu input transaksi hanya dipakai untuk analitik penjualan.
+- **Tidak ada tombol palsu.** Backup, restore, dan log sistem yang tidak berjalan dihapus, bukan dibuat seolah berhasil.
+- **Semua query di luar EDT.** Setiap akses database berjalan di `SwingWorker`.
 
-2. **Compilation Errors**
-   - Check Java version (requires JDK 17+)
-   - Verify Maven dependencies
-   - Clean and rebuild project
+## Pengujian
 
-3. **UI Display Issues**
-   - Check system look and feel compatibility
-   - Verify Swing components
-   - Update graphics drivers
+```bash
+./mvnw -B clean verify
+```
 
-## Contact & Support
-Developed by: Salter  
-Project: TiketWahana Management System  
-Version: 1.0.0  
-Date: June 2025  
+Mencakup parsing dan format uang, hashing password dan kebijakan password, pemisahan statement migrasi, checksum Code 128, serta paint headless seluruh layar pada 1440×900 dan 1024×768 di kedua tema.
 
----
-*Sistem Manajemen Tiket Wahana - Kelola semua wahana dan transaksi dengan mudah*
+Uji integrasi opsional terhadap MySQL 8:
+
+```bash
+./mvnw -B -Dmysql.smoke=true \
+  -Dmysql.url='jdbc:mysql://127.0.0.1:3306/ticket_wahana_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC' \
+  -Dmysql.password=dev test
+```
+
+Uji ini menjalankan migrasi pada database kosong, membuat shift, menjual tiket lintas wahana, memeriksa keseimbangan `transaksi` = `transaksi_detail` = `tiket`, memvalidasi tiket, menolak validasi kedua, mengekspor struk PDF, lalu menutup shift dengan selisih nol.
+
+Tangkapan layar di `docs/screenshots` dihasilkan dari aplikasi yang benar-benar berjalan di atas database berisi data:
+
+```bash
+xvfb-run -a java -cp "target/classes:target/test-classes:$(cat cp.txt)" \
+  -Dmysql.url='...' -Dmysql.password=... com.mycompany.tiketwahana.docs.CaptureMain
+```
+
+## Stack
+
+Java 17 · Swing / Java2D · JDBC · MySQL 8 · Maven · JUnit 5
