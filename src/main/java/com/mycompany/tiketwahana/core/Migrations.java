@@ -20,7 +20,7 @@ import java.util.List;
  */
 public final class Migrations {
 
-    private static final List<String> FILES = List.of("001_initial.sql", "002_portfolio.sql");
+    private static final List<String> FILES = List.of("001_initial.sql", "002_operations.sql");
 
     private Migrations() {}
 

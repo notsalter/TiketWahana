@@ -52,13 +52,9 @@ public final class Motion {
         timer.start();
     }
 
-    /** Fades a component and its children from transparent to opaque. */
-    public static void fadeIn(JComponent component, int durationMs) {
-        AlphaLayer layer = new AlphaLayer(component);
-        run(durationMs, v -> {
-            layer.alpha = (float) v;
-            layer.repaint();
-        });
+    /** Fades an existing layer in place. The layer must already own its content. */
+    public static void fadeIn(AlphaLayer layer, int durationMs) {
+        run(durationMs, v -> layer.setAlpha((float) v));
     }
 
     /** A JPanel that paints its children with a shared alpha, for crossfades. */
@@ -71,6 +67,10 @@ public final class Motion {
             setLayout(new java.awt.BorderLayout());
             setOpaque(false);
             add(content, java.awt.BorderLayout.CENTER);
+        }
+
+        public JComponent content() {
+            return content;
         }
 
         public void setAlpha(float value) {

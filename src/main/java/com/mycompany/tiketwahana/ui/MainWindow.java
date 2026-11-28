@@ -1,7 +1,5 @@
 package com.mycompany.tiketwahana.ui;
 
-import com.mycompany.tiketwahana.core.Env;
-import com.mycompany.tiketwahana.core.SessionUser;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -15,9 +13,9 @@ public final class MainWindow extends JFrame {
     private final AppContext context;
     private final AppShell shell;
 
-    public MainWindow(SessionUser user, Runnable onLogout) {
+    public MainWindow(AppContext context, Runnable onLogout) {
         super("TiketWahana · Panel operasional");
-        this.context = new AppContext(com.mycompany.tiketwahana.core.Database.shared(), user);
+        this.context = context;
         this.context.onLogout = () -> {
             dispose();
             if (onLogout != null) {

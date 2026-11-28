@@ -313,7 +313,7 @@ public class LoginForm extends JFrame {
             }
         }
         setVisible(false);
-        MainWindow window = new MainWindow(user, () -> {
+        MainWindow window = new MainWindow(new com.mycompany.tiketwahana.ui.AppContext(database, user), () -> {
             username.clear();
             password.clear();
             error.setText("");

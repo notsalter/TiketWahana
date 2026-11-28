@@ -4,13 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * Paints the dependency-free visual primitives at the two portfolio target sizes.
+ * Paints the visual primitives at the two reference window sizes.
  * Screens that need a live MySQL connection are smoke-tested by construction of
  * their components; their visual primitives do not touch the network.
  */
@@ -29,16 +27,6 @@ class VisualSmokeTest {
                 assertDoesNotThrow(() -> canvas.paint(g));
                 g.dispose();
                 assertNotNull(image.getRGB(size[0]/2, size[1]/2));
-                if (size[0] == 1440) {
-                    try {
-                        Path dir = Path.of("docs", "screenshots");
-                        Files.createDirectories(dir);
-                        String theme = mode == Theme.Mode.LIGHT ? "light" : "dark";
-                        javax.imageio.ImageIO.write(image, "png", dir.resolve("visual-system-" + theme + ".png").toFile());
-                    } catch (java.io.IOException e) {
-                        fail(e);
-                    }
-                }
             }
         }
     }

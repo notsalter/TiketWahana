@@ -53,6 +53,7 @@ public class AppShell extends JPanel {
     private final CardLayout cards = new CardLayout();
     private final JPanel content = new JPanel(cards);
     private final Map<String, Screen> screens = new LinkedHashMap<>();
+    private final Map<String, Motion.AlphaLayer> layers = new LinkedHashMap<>();
     private final Map<String, NavItem> navItems = new LinkedHashMap<>();
     private final JLabel shiftChip = new JLabel();
     private final JLabel avatar = new JLabel();
@@ -286,13 +287,20 @@ public class AppShell extends JPanel {
 
     public void navigate(String route) {
         Screen screen = screens.get(route);
+        Motion.AlphaLayer layer = layers.get(route);
         if (screen == null) {
             screen = Screens.create(route, ctx);
             screens.put(route, screen);
-            content.add(screen, route);
+            layer = new Motion.AlphaLayer(screen);
+            layers.put(route, layer);
+            content.add(layer, route);
         }
         current = route;
         cards.show(content, route);
+        if (content.getWidth() > 0 && content.getHeight() > 0) {
+            // CardLayout only sizes the card it laid out; keep the newly shown one in step.
+            layer.setBounds(0, 0, content.getWidth(), content.getHeight());
+        }
         navItems.forEach((key, item) -> item.setActive(key.equals(route)));
         refreshShiftChip();
         try {
@@ -300,7 +308,7 @@ public class AppShell extends JPanel {
         } catch (RuntimeException ignored) {
             // a screen that fails to load shows its own empty state
         }
-        Motion.fadeIn(screen, Motion.SCREEN);
+        Motion.fadeIn(layer, Motion.SCREEN);
     }
 
     public String currentRoute() {
@@ -379,11 +387,15 @@ public class AppShell extends JPanel {
         }
     }
 
+    private static int menuMask() {
+        return java.awt.GraphicsEnvironment.isHeadless()
+                ? java.awt.event.InputEvent.CTRL_DOWN_MASK
+                : java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+    }
+
     private void installKeys() {
-        bind(KeyStroke.getKeyStroke(KeyEvent.VK_K, java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
-                "palette", this::openPalette);
-        bind(KeyStroke.getKeyStroke(KeyEvent.VK_J, java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
-                "theme", this::toggleTheme);
+        bind(KeyStroke.getKeyStroke(KeyEvent.VK_K, menuMask()), "palette", this::openPalette);
+        bind(KeyStroke.getKeyStroke(KeyEvent.VK_J, menuMask()), "theme", this::toggleTheme);
         bind(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh", this::reloadCurrent);
         bind(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "sell", () -> navigate("pos"));
         bind(KeyStroke.getKeyStroke(KeyEvent.VK_1, java.awt.event.InputEvent.ALT_DOWN_MASK), "nav1",

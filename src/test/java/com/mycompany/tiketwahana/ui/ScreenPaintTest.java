@@ -6,12 +6,10 @@ import com.mycompany.tiketwahana.core.Role;
 import com.mycompany.tiketwahana.core.SessionUser;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-/** Every registered screen must survive a headless paint at portfolio sizes. */
+/** Every registered screen must survive a headless paint at the reference window sizes. */
 class ScreenPaintTest {
     @Test void everyScreenPaintsAtBothTargetSizesAndThemes() throws Exception {
         Database database = Database.create("jdbc:mysql://127.0.0.1:1/no_network", "none", "none", 1);
@@ -28,11 +26,6 @@ class ScreenPaintTest {
                 screen.setSize(1440, 900);
                 screen.doLayout();
                 assertDoesNotThrow(() -> screen.paint(contactGraphics), "paint failed for " + route + " / " + mode);
-                if (route.equals("dashboard")) {
-                    Files.createDirectories(Path.of("docs", "screenshots"));
-                    javax.imageio.ImageIO.write(contact, "png",
-                            Path.of("docs", "screenshots", "dashboard-" + suffix + ".png").toFile());
-                }
             }
             contactGraphics.dispose();
             BufferedImage smaller = new BufferedImage(1024, 768, BufferedImage.TYPE_INT_ARGB);
