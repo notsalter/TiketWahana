@@ -131,3 +131,13 @@ xvfb-run -a java -cp "target/classes:target/test-classes:$(cat cp.txt)" \
 ## Stack
 
 Java 17 · Swing / Java2D · JDBC · MySQL 8 · Maven · JUnit 5
+
+## Lisensi
+
+Kode aplikasi dilisensikan di bawah [MIT License](LICENSE).
+
+Komponen pihak ketiga memakai lisensinya masing-masing: font Inter dan JetBrains Mono
+(SIL Open Font License 1.1, teks lengkap ada di `src/main/resources/fonts/`),
+MySQL Connector/J (GPL v2 dengan Universal FOSS Exception), serta JUnit 5 dan
+Maven Wrapper untuk pengujian dan build. Rincian ada di
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

@@ -9,6 +9,15 @@
     <version>2.0.0</version>
     <packaging>jar</packaging>
     <name>TiketWahana</name>
+    <description>Aplikasi desktop penjualan dan validasi tiket taman hiburan.</description>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
