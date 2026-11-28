@@ -121,8 +121,11 @@ Uji ini menjalankan migrasi pada database kosong, membuat shift, menjual tiket l
 Tangkapan layar di `docs/screenshots` dihasilkan dari aplikasi yang benar-benar berjalan di atas database berisi data:
 
 ```bash
+./mvnw -q test-compile
+./mvnw -q dependency:build-classpath -Dmdep.outputFile=cp.txt
 xvfb-run -a java -cp "target/classes:target/test-classes:$(cat cp.txt)" \
-  -Dmysql.url='...' -Dmysql.password=... com.mycompany.tiketwahana.docs.CaptureMain
+  -Dmysql.url='jdbc:mysql://127.0.0.1:3306/ticket_wahana_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC' \
+  -Dmysql.password=dev com.mycompany.tiketwahana.docs.CaptureMain
 ```
 
 ## Stack

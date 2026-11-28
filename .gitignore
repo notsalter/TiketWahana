@@ -5,3 +5,4 @@ backups/
 .idea/
 *.iml
 .DS_Store
+cp.txt
