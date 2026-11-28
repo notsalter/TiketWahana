@@ -66,7 +66,12 @@ public class PosScreen extends Screen {
     private final JLabel dateLabel = new JLabel("Hari ini");
     private final List<Wahana> allWahana = new ArrayList<>();
     private final List<CartLine> lines = new ArrayList<>();
+    private final List<ParkedSale> parked = new ArrayList<>();
     private boolean loading;
+
+    private record ParkedSale(String customer, String phone, List<CartLine> lines, String discount,
+                              String cash, String debit, String qris, int dayOffset) {
+    }
 
     public PosScreen(AppContext ctx) {
         super(ctx, "pos");
@@ -195,6 +200,15 @@ public class PosScreen extends Screen {
         checkout.add(summaryRow("Kembalian", changeLabel));
         checkout.add(Box.createVerticalStrut(12));
 
+        JPanel saleActions = new JPanel(new GridLayout(1, 2, 8, 0));
+        saleActions.setOpaque(false);
+        FlatButton park = Buttons.secondary("Parkir transaksi", "clock");
+        FlatButton resume = Buttons.secondary("Pulihkan terakhir", "refresh");
+        park.addActionListener(e -> parkSale());
+        resume.addActionListener(e -> resumeSale());
+        saleActions.add(park); saleActions.add(resume);
+        checkout.add(saleActions);
+        checkout.add(Box.createVerticalStrut(8));
         FlatButton sell = Buttons.primary("Selesaikan penjualan", "check");
         sell.setName("sellButton");
         sell.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
@@ -340,6 +354,28 @@ public class PosScreen extends Screen {
         subtotalLabel.setText(Money.format(sub)); discountLabel.setText(Money.format(dis)); totalLabel.setText(Money.format(total));
         BigDecimal paid = parsePayment(cashReceived.text()).add(parsePayment(debitReceived.text())).add(parsePayment(qrisReceived.text()));
         changeLabel.setText(Money.format(Money.scale(paid.subtract(total).max(Money.ZERO))));
+    }
+
+    private void parkSale() {
+        if (lines.isEmpty()) { Toast.info(this, "Keranjang masih kosong."); return; }
+        List<CartLine> copy = new ArrayList<>();
+        for (CartLine line : lines) copy.add(new CartLine(line.wahana(), line.quantity()));
+        parked.add(new ParkedSale(customer.text(), phone.text(), copy, discount.text(), cashReceived.text(),
+                debitReceived.text(), qrisReceived.text(), ((Number) date.getValue()).intValue()));
+        lines.clear(); customer.clear(); phone.clear(); discount.clear(); cashReceived.clear();
+        debitReceived.clear(); qrisReceived.clear(); date.setValue(0); renderCart();
+        Toast.success(this, "Transaksi diparkir. Dapat dipulihkan selama sesi ini.");
+    }
+
+    private void resumeSale() {
+        if (parked.isEmpty()) { Toast.info(this, "Belum ada transaksi yang diparkir."); return; }
+        ParkedSale draft = parked.remove(parked.size() - 1);
+        lines.clear();
+        for (CartLine line : draft.lines()) lines.add(new CartLine(line.wahana(), line.quantity()));
+        customer.setText(draft.customer()); phone.setText(draft.phone()); discount.setText(draft.discount());
+        cashReceived.setText(draft.cash()); debitReceived.setText(draft.debit()); qrisReceived.setText(draft.qris());
+        date.setValue(draft.dayOffset()); dateLabel.setText(visitDate().toString()); renderCart();
+        Toast.info(this, "Transaksi dipulihkan dari parkiran.");
     }
 
     private BigDecimal parsePayment(String raw) {

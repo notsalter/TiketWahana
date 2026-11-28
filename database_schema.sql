@@ -201,3 +201,6 @@ FROM transaksi tr
 WHERE tr.status = 'PAID'
 GROUP BY DATE(tr.tanggal_transaksi)
 ORDER BY tanggal DESC;
+
+
+INSERT IGNORE INTO schema_version (version) VALUES ('001'), ('002');
